@@ -1,26 +1,24 @@
 class Conversation():
-    def __init__(self, current_topics=None, responses=None, next_topics=None):
-        if responses is None:
-            responses = {}
+    def __init__(self, current_topics=None, pointers=None):
+        if pointers is None:
+            pointers = {}
         self.current_topics = current_topics
-        self.responses = responses
-        self.next_topic = next_topics
+        self.pointers = pointers
 
     def list_topics(self):
         # Won't work as is, but just sketching out an idea.
         choice_num = 1
-        for topic in self.current_topics:
-            print(f"({choice_num}): {topic}")
+        while True:
+            for topic in self.current_topics:
+                print(f"({choice_num}): {self.current_topics[topic]}")
+                choice_num += 1
 
-        choice = input("> ")
-        try:
-            choice = int(choice)
-        except TypeError:
-            print("Enter a number!")
+            choice = input("> ")
 
-        response = self.current_topics[choice - 1]
+            self.switch_topic(choice, self.pointers)
 
-    # Method to set c_topic via next topic depending on response chosen?
+    def switch_topic(self, choice, pointers):
+        self.current_topics = pointers[choice]
 
 
 wolf_greet01 = """The wolf looks up at you, then, after a moment, mutters a greeting."""
@@ -37,15 +35,32 @@ wolf_conv = {
 
 
 wolf_player_start = {
-    'hello': 'Greet the wolf.',
+    'wolf_hello': 'Greet the wolf.',
     'goodbye': 'Leave the conversation.'
 }
 
 wolf_start = {
-    'hello': 'The wolf wags his tail.',
-    'goodbye': 'This will quit the conversation.'
+    'wolf_hello': 'The wolf wags his tail.',
+    'goodbye': 'The conversation (does not) end.'
+}
+
+wolf_player_greet = {
+    'understand': '"Do you understand me?"',
+    'good_boy': '"Who\'s a good boy?"',
+    'goodbye': 'Leave the conversation.'
+}
+
+wolf_greet = {
+    'understand': 'He looks at you for a moment, then says, "Yes..."',
+    'good_boy': 'The wolf barks excitedly!',
+    'goodbye': 'The conversation (does not) end.'
+}
+
+wolf_pointers = {
+    'wolf_hello': wolf_start['wolf_hello'],
+    'wolf_goodbye': wolf_start['goodbye']
 }
 
 
-wolf_init = Conversation(c_topics=wolf_player_start,
-                         responses=wolf_start)
+wolf_init = Conversation(current_topics=wolf_player_start,
+                         pointers=wolf_start)

@@ -1,13 +1,15 @@
 import phantasm_characters as phcharacters
 import phantasm_rooms as phrooms
 import phantasm_items as phitems
+import conversations as conv
 # Needs save-game stuff here.
 
 # Characters
 player = phcharacters.Player(name='Scintilla')
 
 test_wolf = phcharacters.Entity(name='Wolf',
-                                desc='A large gray wolf. He looks happy.')
+                                desc='A large gray wolf. He looks happy.',
+                                conversation=conv.wolf_init)
 
 available_characters = {
     'self': player,
@@ -94,7 +96,7 @@ available_rooms = {
 }
 
 player.spawn(start_room)
-test_wolf.spawn(sward)
+test_wolf.spawn(start_room)
 
 
 def game():
