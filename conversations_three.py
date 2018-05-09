@@ -35,6 +35,19 @@ class Conversation:
             # Probably stuff here.
             choice = input('> ')
 
+            try:
+                selection = int(choice) - 1
+            except TypeError:
+                print("Enter a number!")
+                continue
+
+            try:
+                value = list(self.conversation['topics'].values())[selection]
+                print(value.response)
+            except IndexError:
+                print("That's not a valid choice.")
+                continue
+
             # Stuff here about looking at the choice number and matching it up to which topic is displayed.
 
 # Lookup table for conversation stages which they lead to.
