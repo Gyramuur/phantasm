@@ -1,12 +1,12 @@
 from sys import exit
 import phantasm_functions as phfuncs
-import conversations as conv
+import conversations_three as conv
 import conversations_two as conv2
 
 
 class Entity():
     def __init__(self, name='Character', inventory=None, health=100, equip=None, c_room=None,
-                 desc='You see nothing remarkable.', capacity=20, carrying=0, conversation=None):
+                 desc='You see nothing remarkable.', capacity=20, carrying=0, conversation=None, disposition=50):
         if equip is None:
             equip = []
         if inventory is None:
@@ -20,6 +20,7 @@ class Entity():
         self.capacity = capacity
         self.carrying = carrying
         self.conversation = conversation
+        self.disposition = disposition
 
     def spawn(self, room):
         room.characters.append(self)
@@ -145,8 +146,7 @@ quit - Quits the game.'''
         elif 'talk' in choice:
             target = phfuncs.get_target(choice, available_items, available_characters)
             # target.conversation.list_topics()
-            if target == available_characters['wolf']:
-                conv2.wolf_conversation()
+            target.conversation.converse()
 
         elif 'help' in choice:
             print(self.actions)

@@ -1,5 +1,5 @@
 class ConversationBranch:
-    def __init__(self, name='', prompt='', response='', leads_to='', effect=None):
+    def __init__(self, name='', prompt='', response='', leads_to='', effect=''):
         self.name = name
         self.prompt = prompt
         self.response = response
@@ -8,15 +8,13 @@ class ConversationBranch:
 
 
 class Conversation:
-    def __init__(self, id_chart, conversation=None, intro='', return_greeting='', has_met=False, disposition=0):
+    def __init__(self, conversation=None, intro='', return_greeting='', has_met=False):
         if conversation is None:
             conversation = {}
         self.conversation = conversation
         self.intro = intro
         self.return_greeting = return_greeting
-        self.id_chart = id_chart  # Don't know if I need this.
         self.has_met = has_met
-        self.disposition = disposition
 
     # You need 'conversation levels', as in, different parts of the conversation that link to other parts.
     # So start has certain responses that lead to other levels.
@@ -30,9 +28,9 @@ class Conversation:
 
         count = 1
         while True:
-            for topic in self.conversation[current_level]:  # How the fuck do you do it? Get the level
+            for v in self.conversation['topics'].values():  # How the fuck do you do it? Get the level
                 # and set it somehow, maybe?
-                print(f"{count}: {topic['choice_name']}")
+                print(f"{count}: {v.prompt}")
                 count += 1
             # Probably stuff here.
             choice = input('> ')
@@ -41,31 +39,42 @@ class Conversation:
 
 # Lookup table for conversation stages which they lead to.
 
-
-class ConversationStage:
-    def __init__(self, name='', leads_to='', effect=''):
-        self.name = name
-        self.leads_to = leads_to
-        self.effect = effect
-
-
 # You could probably take out the whole conversation dictionary thing, remove the 'level' (the start seen here),
 
 # Or have the conversation link to a class.
 
+# You might still need levels tho. Perhaps as part of the Conversation class?
 
-wolf_start = ConversationBranch(
-    name='wolf_start',
+
+wolf_greet = ConversationBranch(
+    name='wolf_greet',
     prompt='(Greet the wolf.)',
     response='The wolf barks at you and wags his tail.',
-    leads_to='wolf_greeted'  # Perhaps have a list of prompts, and each one will lead to something different.
+    leads_to='wolf_goodboy'  # Perhaps have a list of prompts, and each one will lead to something different.
 )
 
-wolf_greeted = ConversationBranch(
-    name='wolf_greeted',
+wolf_goodbye = ConversationBranch(
+    name='wolf_goodbye',
+    prompt='(Leave.)',
+    response='You walk away from the wolf.',
+    effect='goodbye'
+)
+
+wolf_goodboy = ConversationBranch(
+    name='wolf_goodboy',
     prompt='"Who\'s a good boy?"',
     response='The wolf tilts his head curiously.',
     leads_to='something'
+)
+
+wolf_conv = Conversation(
+    intro="The wolf looks up at you curiously.",
+    conversation={
+        'topics': {
+            'wolf_greet': wolf_greet,
+            'wolf_goodbye': wolf_goodbye
+        }
+    }
 )
 
 # Experimental stuff below.
