@@ -2,7 +2,7 @@ import phantasm_functions as funcs
 
 
 class ConversationBranch:
-    def __init__(self, name='', prompt='', response='', leads_to='', effect=''):
+    def __init__(self, name='', prompt='', response='', leads_to='', effect='continue'):
         self.name = name
         self.prompt = prompt
         self.response = response
@@ -11,7 +11,8 @@ class ConversationBranch:
 
 
 class Conversation:
-    def __init__(self, conversation=None, intro='', return_greeting='', has_met=False, in_conversation = True):
+    def __init__(self, initial_conversation=None, conversation=None, intro='', return_greeting='', has_met=False, in_conversation=True):
+        self.initial_conversation = initial_conversation
         self.conversation = conversation
         self.intro = intro
         self.return_greeting = return_greeting
@@ -28,14 +29,13 @@ class Conversation:
         self.has_met = True
 
     def do_effect(self, topic):
-        effects = {
-            'goodbye': self.goodbye(),
-            'has_met': self.meet()
-        }
-        if topic.effect in effects:
-            effects[topic.effect]
+        if topic.effect == 'has_met':
+            self.meet()
 
     def converse(self):
+
+        self.in_conversation = True
+        self.conversation = self.initial_conversation
 
         if not self.has_met:
             print(self.intro)
@@ -44,7 +44,7 @@ class Conversation:
 
         count = 1
         while self.in_conversation:
-            print(self.conversation)
+            # print(self.conversation)
 
             if self.conversation is not None:
                 for item in self.conversation:
@@ -61,6 +61,7 @@ class Conversation:
                     continue
 
                 try:
+                    self.do_effect(topic)
                     print(topic.response)
                     self.conversation = funcs.get_stage(topic, available_conversations)
                     count = 1
@@ -101,7 +102,6 @@ wolf_goodboy = ConversationBranch(
     name='wolf_goodboy',
     prompt='"Who\'s a good boy?"',
     response='The wolf smiles and wags his tail.',
-    leads_to='something',
     effect='goodbye'
 )
 
@@ -123,6 +123,7 @@ available_conversations = {
 
 wolf_conv = Conversation(
     intro="The wolf looks up at you curiously.",
+    initial_conversation=wolf_stage_start,
     conversation=wolf_stage_start,
     return_greeting='The wolf smiles at you.'
 )
