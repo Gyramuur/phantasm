@@ -146,7 +146,10 @@ quit - Quits the game.'''
         elif 'talk' in choice:
             target = phfuncs.get_target(choice, available_items, available_characters)
             # target.conversation.list_topics()
-            target.conversation.converse()
+            if target in self.c_room.characters:
+                target.conversation.converse()
+            else:
+                print("You don't see them here.")
 
         elif 'help' in choice:
             print(self.actions)

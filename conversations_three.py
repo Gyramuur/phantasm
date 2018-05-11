@@ -55,18 +55,20 @@ class Conversation:
 
                 try:
                     selection = int(choice) - 1
-                    topic = self.conversation[selection]
-                except TypeError:
+                except ValueError:
                     print("Enter a number!")
+                    count = 1
                     continue
 
                 try:
+                    topic = self.conversation[selection]
                     self.do_effect(topic)
                     print(topic.response)
                     self.conversation = funcs.get_stage(topic, available_conversations)
                     count = 1
                 except IndexError:
                     print("That's not a valid choice.")
+                    count = 1
                     continue
 
             else:
@@ -108,8 +110,8 @@ wolf_goodboy = ConversationBranch(
 wolf_insult = ConversationBranch(
     name='wolf_insult',
     prompt='(Shake your fist and yell at the wolf!)',
-    response='The wolf growls and barks at you!',
-    effect='goodbye'
+    response='The wolf growls and barks at you!',  # Should set up disposition.
+    effect='goodbye'  # You need multiple effects to change the disposition as well as leave the conversation.
 )
 
 wolf_stage_start = [wolf_greet, wolf_goodbye]
