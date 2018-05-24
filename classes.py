@@ -1,5 +1,5 @@
 import functions
-import pygame
+import characters
 
 class Entity:
     def __init__(self, name='Character', inventory=None, health=100, equip=None, c_room=None,
@@ -101,9 +101,12 @@ check - Displays name, health, and contents of inventory.
 
 quit - Quits the game.'''
 
-    def look(self, choice, available_items, available_characters):
+    def look(self, choice, available_items, available_characters, game_text):
         if choice == 'look':
-            self.c_room.room_desc()
+            description = self.c_room.room_desc()
+            old_description = game_text.get()
+            new_description = (old_description + "\n" + f"> {choice}" + "\n" + description)
+            game_text.set(new_description)
 
         else:
             target = functions.get_target(choice, available_items, available_characters)
@@ -114,16 +117,13 @@ quit - Quits the game.'''
             else:
                 print("You don't see that here.")
 
-    def player_choice(self, available_rooms, available_items, available_characters):
-        choice = input('> ')
-
-        print()
+    def player_choice(self, available_rooms, available_items, available_characters, choice, game_text):
 
         if 'go' in choice:
             self.move(choice, available_rooms)
 
         elif 'look' in choice:
-            self.look(choice, available_items, available_characters)
+            self.look(choice, available_items, available_characters, game_text)
 
         elif 'take' in choice:
             self.take(choice, available_items)
@@ -198,6 +198,27 @@ class Room:
 
     def room_desc(self):
 
+        # Rewrite this to update the game_text variable instead.
+
+        room_description = []
+        room_description.append(self.desc)
+
+        description_string = ""
+
+        for item in self.items:
+            room_description.append(f"A {item.name} is here.")
+
+        for character in self.characters:
+            if character.name != characters.player.name:
+                room_description.append(f"{character.name.title()} is standing here.")
+
+        for item in room_description:
+            description_string += (item + "\n")
+
+        return description_string
+
+
+        '''
         print(self.desc)
 
         for item in self.items:
@@ -206,6 +227,7 @@ class Room:
         for character in self.characters:
             if character.name != "Scintilla":
                 print(character.name + " is standing here.")
+                '''
 
     def spawn(self, character):
         self.characters.append(character)
