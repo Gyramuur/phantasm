@@ -1,66 +1,117 @@
-class Conversation():
-    def __init__(self, current_topics=None, pointers=None):
-        if pointers is None:
-            pointers = {}
-        self.current_topics = current_topics
-        self.pointers = pointers
-
-    def list_topics(self):
-        # Won't work as is, but just sketching out an idea.
-        choice_num = 1
-        while True:
-            for topic in self.current_topics:
-                print(f"({choice_num}): {self.current_topics[topic]}")
-                choice_num += 1
-
-            choice = input("> ")
-
-            self.switch_topic(choice, self.pointers)
-
-    def switch_topic(self, choice, pointers):
-        self.current_topics = pointers[choice]
+import functions as funcs
 
 
-wolf_greet01 = """The wolf looks up at you, then, after a moment, mutters a greeting."""
-wolf_affirm = """
-"Yes," he says somewhat petulantly, "of course I can talk."
-"""
-wolf_woof = """The wolf barks at you excitedly."""
+class ConversationBranch:
+    def __init__(self, name='', prompt='', response='', leads_to='', effect='continue'):
+        self.name = name
+        self.prompt = prompt
+        self.response = response
+        self.leads_to = leads_to
+        self.effect = effect
 
-wolf_conv = {
-    'greeting': wolf_greet01,
-    'can_talk': wolf_affirm,
-    'woof': wolf_woof
+
+class Conversation:
+    def __init__(self, initial_conversation=None, conversation=None, intro='', return_greeting='', has_met=False, in_conversation=True):
+        self.initial_conversation = initial_conversation
+        self.conversation = conversation
+        self.intro = intro
+        self.return_greeting = return_greeting
+        self.has_met = has_met
+        self.in_conversation = in_conversation
+
+    def goodbye(self):
+        self.in_conversation = False
+
+    def meet(self):
+        self.has_met = True
+
+    def do_effect(self, topic):
+        if 'has_met' in topic.effect:
+            self.meet()
+
+    def converse(self):
+
+        self.in_conversation = True
+        self.conversation = self.initial_conversation
+
+        if not self.has_met:
+            print(self.intro)
+        else:
+            print(self.return_greeting)
+
+        count = 1
+        while self.in_conversation:
+
+            if self.conversation is not None:
+                for item in self.conversation:
+                    print(f"{count}: {item.prompt}")
+                    count += 1
+                    # Probably stuff here.
+                choice = input('> ')
+
+                try:
+                    selection = int(choice) - 1
+                except ValueError:
+                    print("Enter a number!")
+                    count = 1
+                    continue
+
+                try:
+                    topic = self.conversation[selection]
+                    self.do_effect(topic)
+                    print(topic.response)
+                    self.conversation = funcs.get_stage(topic, available_conversations)
+                    count = 1
+                except IndexError:
+                    print("That's not a valid choice.")
+                    count = 1
+                    continue
+
+            else:
+                self.goodbye()
+
+
+wolf_greet = ConversationBranch(
+    name='wolf_greet',
+    prompt='(Greet the wolf.)',
+    response='The wolf barks at you and wags his tail.',
+    leads_to='wolf_stage_greeted',
+    effect='has_met'
+)
+
+wolf_goodbye = ConversationBranch(
+    name='wolf_goodbye',
+    prompt='(Leave.)',
+    response='You walk away from the wolf.',
+    effect='goodbye'
+)
+
+wolf_goodboy = ConversationBranch(
+    name='wolf_goodboy',
+    prompt='"Who\'s a good boy?"',
+    response='The wolf smiles and wags his tail.',
+    effect='goodbye'
+)
+
+wolf_insult = ConversationBranch(
+    name='wolf_insult',
+    prompt='(Shake your fist and yell at the wolf!)',
+    response='The wolf growls and barks at you!',  # Should set up disposition.
+    effect='goodbye'  # You need multiple effects to change the disposition as well as leave the conversation.
+)
+
+wolf_stage_start = [wolf_greet, wolf_goodbye]
+wolf_stage_greeted = [wolf_goodboy, wolf_insult, wolf_goodbye]
+
+available_conversations = {
+    'wolf_stage_start': wolf_stage_start,
+    'wolf_stage_greeted': wolf_stage_greeted
 }
 
 
-wolf_player_start = {
-    'wolf_hello': 'Greet the wolf.',
-    'goodbye': 'Leave the conversation.'
-}
-
-wolf_start = {
-    'wolf_hello': 'The wolf wags his tail.',
-    'goodbye': 'The conversation (does not) end.'
-}
-
-wolf_player_greet = {
-    'understand': '"Do you understand me?"',
-    'good_boy': '"Who\'s a good boy?"',
-    'goodbye': 'Leave the conversation.'
-}
-
-wolf_greet = {
-    'understand': 'He looks at you for a moment, then says, "Yes..."',
-    'good_boy': 'The wolf barks excitedly!',
-    'goodbye': 'The conversation (does not) end.'
-}
-
-wolf_pointers = {
-    'wolf_hello': wolf_start['wolf_hello'],
-    'wolf_goodbye': wolf_start['goodbye']
-}
-
-
-wolf_init = Conversation(current_topics=wolf_player_start,
-                         pointers=wolf_start)
+wolf_conv = Conversation(
+    intro="The wolf looks up at you curiously.",
+    initial_conversation=wolf_stage_start,
+    conversation=wolf_stage_start,
+    return_greeting='The wolf smiles at you.'
+)

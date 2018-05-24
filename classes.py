@@ -1,10 +1,7 @@
-from sys import exit
-import phantasm_functions as phfuncs
-import conversations_three as conv
-import conversations_two as conv2
+import functions
+import pygame
 
-
-class Entity():
+class Entity:
     def __init__(self, name='Character', inventory=None, health=100, equip=None, c_room=None,
                  desc='You see nothing remarkable.', capacity=20, carrying=0, conversation=None, disposition=50):
         if equip is None:
@@ -27,7 +24,7 @@ class Entity():
         self.c_room = room
 
     def move(self, choice, available_rooms):
-        direction = phfuncs.get_direction(choice)
+        direction = functions.get_direction(choice)
 
         if direction in self.c_room.exits:
             direction = self.c_room.exits[direction]
@@ -49,7 +46,7 @@ class Entity():
 
     def take(self, choice, available_items):
         available_characters = ['']
-        item = phfuncs.get_target(choice, available_items, available_characters)
+        item = functions.get_target(choice, available_items, available_characters)
 
         if item in self.c_room.items:
             self.c_room.items.remove(item)
@@ -72,7 +69,7 @@ class Entity():
     def drop(self, choice, available_items):
         available_characters = ['']
         if len(self.inventory) > 0:
-            item = phfuncs.get_target(choice, available_items, available_characters)
+            item = functions.get_target(choice, available_items, available_characters)
 
             if item in self.inventory:
                 self.inventory.remove(item)
@@ -109,7 +106,7 @@ quit - Quits the game.'''
             self.c_room.room_desc()
 
         else:
-            target = phfuncs.get_target(choice, available_items, available_characters)
+            target = functions.get_target(choice, available_items, available_characters)
             if target in self.c_room.items or target in self.inventory:
                 target.item_desc()
             elif target in self.c_room.characters:
@@ -144,7 +141,7 @@ quit - Quits the game.'''
             print(f"Encumbrance: {self.carrying}/{self.capacity}")
 
         elif 'talk' in choice:
-            target = phfuncs.get_target(choice, available_items, available_characters)
+            target = functions.get_target(choice, available_items, available_characters)
             # target.conversation.list_topics()
             if target in self.c_room.characters:
                 target.conversation.converse()
@@ -163,5 +160,52 @@ quit - Quits the game.'''
         print()
 
 
+class Item:
+    def __init__(self, name='item', desc='', value=1, damage=1, unlocks='', edible=False, container=False,
+                 capacity=0, weight=1):
+        self.name = name
+        self.desc = desc
+        self.value = value
+        self.damage = damage
+        self.unlocks = unlocks
+        self.edible = edible
+        self.container = container
+        self.capacity = capacity
+        self.weight = weight
+
+    def item_desc(self):
+        print(self.desc)
+        print(f"It is worth: {self.value} gold.")
+        print(f"It weighs {self.weight} pounds.")
+        print(f"It does {self.damage} damage.")
 
 
+class Room:
+    def __init__(self, desc="An empty, unused room.", items=None, characters=None, exterior=False, locked=False,
+                 exits=None):
+        if exits is None:
+            exits = {}
+        if characters is None:
+            characters = []
+        if items is None:
+            items = []
+        self.desc = desc
+        self.items = items
+        self.characters = characters
+        self.exterior = exterior
+        self.locked = locked
+        self.exits = exits
+
+    def room_desc(self):
+
+        print(self.desc)
+
+        for item in self.items:
+            print("There is a " + item.name + " here.")
+
+        for character in self.characters:
+            if character.name != "Scintilla":
+                print(character.name + " is standing here.")
+
+    def spawn(self, character):
+        self.characters.append(character)
