@@ -1,7 +1,10 @@
+from tkinter import *
+
+
 def update_description(description, choice, game_text):
-    old_description = game_text.get()
-    new_description = (old_description + "\n" + f"> {choice}" + "\n" + description)
-    game_text.set(new_description)
+    new_description = (f"\n> {choice}" + "\n" + description)
+    game_text.insert(END, new_description)
+    game_text.see('end')
 
 
 def get_target(choice, available_items, available_characters):
