@@ -1,3 +1,9 @@
+def update_description(description, choice, game_text):
+    old_description = game_text.get()
+    new_description = (old_description + "\n" + f"> {choice}" + "\n" + description)
+    game_text.set(new_description)
+
+
 def get_target(choice, available_items, available_characters):
     choice = choice.split()
 

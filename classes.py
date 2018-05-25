@@ -23,7 +23,7 @@ class Entity:
         room.characters.append(self)
         self.c_room = room
 
-    def move(self, choice, available_rooms):
+    def move(self, choice, available_rooms, game_text):
         direction = functions.get_direction(choice)
 
         if direction in self.c_room.exits:
@@ -42,7 +42,8 @@ class Entity:
         else:
             print("You can't go that way.")
 
-        self.c_room.room_desc()
+        description = self.c_room.room_desc()
+        functions.update_description(description, choice, game_text)
 
     def take(self, choice, available_items):
         available_characters = ['']
@@ -104,9 +105,7 @@ quit - Quits the game.'''
     def look(self, choice, available_items, available_characters, game_text):
         if choice == 'look':
             description = self.c_room.room_desc()
-            old_description = game_text.get()
-            new_description = (old_description + "\n" + f"> {choice}" + "\n" + description)
-            game_text.set(new_description)
+            functions.update_description(description, choice, game_text)
 
         else:
             target = functions.get_target(choice, available_items, available_characters)
@@ -120,7 +119,7 @@ quit - Quits the game.'''
     def player_choice(self, available_rooms, available_items, available_characters, choice, game_text):
 
         if 'go' in choice:
-            self.move(choice, available_rooms)
+            self.move(choice, available_rooms, game_text)
 
         elif 'look' in choice:
             self.look(choice, available_items, available_characters, game_text)

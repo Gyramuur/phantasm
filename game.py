@@ -14,16 +14,19 @@ player_choice = StringVar()
 
 content = ttk.Frame(root)
 entry = ttk.Entry(content, textvariable=player_choice)
+entry_label = ttk.Label(content, text="> ")
 text_field = ttk.Label(content, textvariable=game_text)
 
 content.grid(column=0, row=0, sticky=(N, W, E, S))
-text_field.grid(column=0, row=0, sticky=(W, E))
-entry.grid(column=0, row=1, sticky=(W, E, S))
+text_field.grid(column=1, row=0, sticky=(W, E))
+entry.grid(column=1, row=1, sticky=(W, E, S))
+entry_label.grid(column=0, row=1, sticky=(W, S))
 
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 content.columnconfigure(0, weight=1)
 content.rowconfigure(1, weight=1)
+root.resizable(width=False, height=False)
 
 
 def do_action(*args):
@@ -34,7 +37,6 @@ def do_action(*args):
 
 
 button = ttk.Button(content, command=do_action)
-button.grid(column=1, row=1, sticky=(E, S))
 root.bind('<Return>', do_action)
 entry.focus()
 
