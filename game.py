@@ -9,14 +9,18 @@ characters.test_wolf.spawn(rooms.start_room)
 
 root = Tk()
 root.geometry("640x480")
+root.configure(background="#000000")
 
 game_text = StringVar()
 player_choice = StringVar()
 
-content = ttk.Frame(root)
+gui_style = ttk.Style()
+gui_style.configure('My.TFrame', background='#000000')
+
+content = ttk.Frame(root, style='My.TFrame')
 entry = ttk.Entry(content, textvariable=player_choice)
 entry_label = ttk.Label(content, text="> ")
-text_field = Text(content)
+text_field = Text(content, background="#000000", foreground="#FFFFFF")
 
 content.grid(column=0, row=0, sticky=(N, W, E, S))
 text_field.grid(column=1, row=0, sticky=(W, E))
@@ -45,6 +49,7 @@ entry.focus()
 def game():
     description = characters.player.c_room.room_desc()
     text_field.insert(END, description)
+    text_field.configure(state="disabled")
     root.mainloop()
 
     # while True:

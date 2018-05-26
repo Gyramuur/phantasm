@@ -2,9 +2,11 @@ from tkinter import *
 
 
 def update_description(description, choice, game_text):
+    game_text.configure(state="normal")
     new_description = (f"\n> {choice}" + "\n" + description)
     game_text.insert(END, new_description)
     game_text.see('end')
+    game_text.configure(state="disabled")
 
 
 def get_target(choice, available_items, available_characters):
