@@ -15,22 +15,23 @@ game_text = StringVar()
 player_choice = StringVar()
 
 gui_style = ttk.Style()
-gui_style.configure('My.TFrame', background='#000000')
+gui_style.configure('My.TFrame', background='#000000', foreground='#FFFFFF')
 
 content = ttk.Frame(root, style='My.TFrame')
 entry = ttk.Entry(content, textvariable=player_choice)
-entry_label = ttk.Label(content, text="> ")
 text_field = Text(content, background="#000000", foreground="#FFFFFF")
 
+
 content.grid(column=0, row=0, sticky=(N, W, E, S))
-text_field.grid(column=1, row=0, sticky=(W, E))
-entry.grid(column=1, row=1, sticky=(W, E, S))
-entry_label.grid(column=0, row=1, sticky=(W, S))
+text_field.grid(column=0, row=1, sticky=(N,W, E, S))
+entry.grid(column=0, row=2, sticky=(W, E, S))
 
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 content.columnconfigure(0, weight=1)
 content.rowconfigure(1, weight=1)
+text_field.columnconfigure(0, weight=1)
+text_field.rowconfigure(0, weight=1)
 root.resizable(width=False, height=False)
 
 
