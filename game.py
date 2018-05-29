@@ -8,28 +8,41 @@ characters.player.spawn(rooms.start_room)
 characters.test_wolf.spawn(rooms.start_room)
 
 root = Tk()
-root.geometry("640x480")
-root.configure(background="#000000")
+root.configure(background="#e2c69d")
+root.title("Phantasm")
 
 game_text = StringVar()
 player_choice = StringVar()
 
 gui_style = ttk.Style()
-gui_style.configure('My.TFrame', background='#000000', foreground='#FFFFFF')
+gui_style.configure('My.TFrame', background='#e2c69d', foreground='#FFFFFF')
 
-content = ttk.Frame(root, style='My.TFrame')
-entry = ttk.Entry(content, textvariable=player_choice)
-text_field = Text(content, background="#000000", foreground="#FFFFFF")
+content = ttk.Frame(root, style='My.TFrame', padding='5 5 5 5')
+content2 = ttk.Frame(root, style='My.TFrame', padding='5 5 5 5')
+
+entry = Entry(content2, textvariable=player_choice, background='#e2c69d', foreground='#7e2713', borderwidth=0,
+              highlightthickness=0, insertbackground='#7e2713', font=("Legendaria", 24, 'bold'))
+entry_label = Label(content2, text="> ", background='#e2c69d', foreground='#7e2713', font=("Legendaria", 24, 'bold'))
+text_field = Text(content, background='#e2c69d', foreground="#7e2713", borderwidth=0, font=("Legendaria", 24, 'bold'),
+                  wrap=WORD)
 
 
+'''
 content.grid(column=0, row=0, sticky=(N, W, E, S))
-text_field.grid(column=0, row=1, sticky=(N,W, E, S))
-entry.grid(column=0, row=2, sticky=(W, E, S))
+entry_label.grid(row=2, sticky=W)
+entry.grid(column=1, row=2, sticky=W, columnspan=2)
+text_field.grid(columnspan=2, row=1, sticky=(N, W, E, S))'''
 
-root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
+content.grid(sticky=(N, W), column=0, row=0)
+content2.grid(sticky=(S, W), column=0, row=1)
+text_field.grid(column=0, sticky=(N, W))
+entry_label.grid(column=0, row=0, sticky=(S, W))
+entry.grid(column=1, row=0, sticky=(S, W))
+
 content.columnconfigure(0, weight=1)
-content.rowconfigure(1, weight=1)
+content.rowconfigure(0, weight=1)
+content2.columnconfigure(0, weight=1)
+content2.rowconfigure(1, weight=1)
 text_field.columnconfigure(0, weight=1)
 text_field.rowconfigure(0, weight=1)
 root.resizable(width=False, height=False)
@@ -42,9 +55,14 @@ def do_action(*args):
     player_choice.set("")
 
 
-button = ttk.Button(content, command=do_action)
+def return_focus(*args):
+    entry.focus()
+
+
+# button = ttk.Button(content, command=do_action)
 root.bind('<Return>', do_action)
-entry.focus()
+root.bind('<Button-1>', return_focus)
+return_focus()
 
 
 def game():

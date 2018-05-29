@@ -10,8 +10,8 @@ start_room = classes.Room(
 )
 
 hallway = classes.Room(
-    desc="You are in a hallway. Before you is a doorway leading outside, and to the south is a door leading\n" +
-    "to an empty room",
+    desc="You are in a hallway. Before you is a doorway leading outside, and to the south is a door leading to an "
+         "empty room.",
     exits={
         "south": "start_room",
         "outside": "sward"

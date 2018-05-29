@@ -45,7 +45,7 @@ class Entity:
         description = self.c_room.room_desc()
         functions.update_description(description, choice, game_text)
 
-    def take(self, choice, available_items):
+    def take(self, choice, available_items, game_text):
         available_characters = ['']
         item = functions.get_target(choice, available_items, available_characters)
 
@@ -55,19 +55,24 @@ class Entity:
             self.carrying += item.weight
 
             if self.carrying >= self.capacity:
-                print("That is too heavy!")
                 self.inventory.remove(item)
                 self.c_room.items.append(item)
                 self.carrying -= item.weight
-                return
 
         else:
-            print("You don't see that here.")
+            take_message="You don't see that here.\n"
+            functions.update_description(take_message, choice, game_text)
             return
 
-        print(f"You take {item.name}.")
+        if item in self.inventory:
+            take_message = f"You take {item.name}.\n"
 
-    def drop(self, choice, available_items):
+        else:
+            take_message = "That is too heavy!\n"
+
+        functions.update_description(take_message, choice, game_text)
+
+    def drop(self, choice, available_items, game_text):
         available_characters = ['']
         if len(self.inventory) > 0:
             item = functions.get_target(choice, available_items, available_characters)
@@ -76,30 +81,25 @@ class Entity:
                 self.inventory.remove(item)
                 self.c_room.items.append(item)
                 self.carrying -= item.weight
-                print(f"You drop {item.name}")
+                drop_message = f"You drop {item.name}.\n"
             else:
-                print("You can't lose what you don't have.")
+                drop_message = f"You are not carrying that.\n"
 
         else:
-            print("You don't have anything to drop!")
+            drop_message = "You don't have anything to drop!\n"
+
+        functions.update_description(drop_message, choice, game_text)
 
 
 class Player(Entity):
     actions = '''
 You can:
-
 go <direction> - Move in a specified direction.	
-
 look - Shows description of current room and its contents.
-
 look <at something> - Shows description of specified object.
-
 take <item> - Takes the specified item if present.
-
 drop <item> - Drops specified item if in inventory.
-
 check - Displays name, health, and contents of inventory.
-
 quit - Quits the game.'''
 
     def look(self, choice, available_items, available_characters, game_text):
@@ -125,12 +125,29 @@ quit - Quits the game.'''
             self.look(choice, available_items, available_characters, game_text)
 
         elif 'take' in choice:
-            self.take(choice, available_items)
+            self.take(choice, available_items, game_text)
 
         elif 'drop' in choice:
-            self.drop(choice, available_items)
+            self.drop(choice, available_items, game_text)
 
         elif 'check' in choice:
+            if len(self.inventory) > 0:
+                inventory = "\nYou are carrying:\n"
+
+                for item in self.inventory:
+                    inventory = inventory + item.name + "\n"
+
+            else:
+                inventory = ""
+
+            stats = f"Name: {self.name}" + "\n" \
+                    f"Health: {self.health}" + "\n" \
+                    f"{inventory}" + "\n" \
+                    f"Encumbrance: {self.carrying}/{self.capacity}" + "\n"
+
+            functions.update_description(stats, choice, game_text)
+
+            '''
             print("Name: " + self.name)
             print(f"Health: {self.health}\n")
             if len(self.inventory) > 0:
@@ -138,6 +155,7 @@ quit - Quits the game.'''
                 for item in self.inventory:
                     print(item.name)
             print(f"Encumbrance: {self.carrying}/{self.capacity}")
+            '''
 
         elif 'talk' in choice:
             target = functions.get_target(choice, available_items, available_characters)
@@ -148,7 +166,7 @@ quit - Quits the game.'''
                 print("You don't see them here.")
 
         elif 'help' in choice:
-            print(self.actions)
+            functions.update_description(self.actions, choice, game_text)
 
         elif 'quit' in choice:
             exit(0)
