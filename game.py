@@ -3,7 +3,7 @@ import items
 import rooms
 from tkinter import *
 from tkinter import ttk
-import pyglet
+
 
 characters.player.spawn(rooms.start_room)
 characters.test_wolf.spawn(rooms.start_room)
@@ -21,13 +21,11 @@ gui_style.configure('My.TFrame', background='#e2c69d', foreground='#FFFFFF')
 content = ttk.Frame(root, style='My.TFrame', padding='5 5 5 5')
 content2 = ttk.Frame(root, style='My.TFrame', padding='5 5 5 5')
 
-font = pyglet.font.add_file('Legendaria.ttf')
-custom_font = pyglet.font.load('Legendaria')
 
 entry = Entry(content2, textvariable=player_choice, background='#e2c69d', foreground='#7e2713', borderwidth=0,
-              highlightthickness=0, insertbackground='#7e2713', font=('Legendaria', 24, 'bold'))
-entry_label = Label(content2, text="> ", background='#e2c69d', foreground='#7e2713', font=('Legendaria', 24, 'bold'))
-text_field = Text(content, background='#e2c69d', foreground="#7e2713", borderwidth=0, font=('Legendaria', 24, 'bold'),
+              highlightthickness=0, insertbackground='#7e2713', font=("Legendaria", 24, 'bold'))
+entry_label = Label(content2, text="> ", background='#e2c69d', foreground='#7e2713', font=("Legendaria", 24, 'bold'))
+text_field = Text(content, background='#e2c69d', foreground="#7e2713", borderwidth=0, font=("Legendaria", 24, 'bold'),
                   wrap=WORD)
 
 
