@@ -1,4 +1,4 @@
-import functions as funcs
+import functions
 
 
 class ConversationBranch:
@@ -11,7 +11,7 @@ class ConversationBranch:
 
 
 class Conversation:
-    def __init__(self, initial_conversation=None, conversation=None, intro='', return_greeting='', has_met=False, in_conversation=True):
+    def __init__(self, initial_conversation=None, conversation=None, intro='', return_greeting='', has_met=False, in_conversation=False):
         self.initial_conversation = initial_conversation
         self.conversation = conversation
         self.intro = intro
@@ -29,42 +29,51 @@ class Conversation:
         if 'has_met' in topic.effect:
             self.meet()
 
-    def converse(self):
+    def converse(self, widget):
 
         self.in_conversation = True
         self.conversation = self.initial_conversation
+        conversation_text = ''
 
         if not self.has_met:
-            print(self.intro)
+            conversation_text = conversation_text + self.intro
         else:
-            print(self.return_greeting)
+            conversation_text = conversation_text + self.return_greeting
 
         count = 1
         while self.in_conversation:
 
             if self.conversation is not None:
                 for item in self.conversation:
-                    print(f"{count}: {item.prompt}")
+                    conversation_text = conversation_text + f"\n  {count}) {item.prompt}"
                     count += 1
                     # Probably stuff here.
-                choice = input('> ')
+
+                functions.update_description(widget, conversation_text)
 
                 try:
-                    selection = int(choice) - 1
+                    selection = int(widget.ids.text_input.text) - 1
                 except ValueError:
-                    print("Enter a number!")
+
+                    message = "Enter a number!"
                     count = 1
+                    conversation_text += message
+                    functions.update_description(widget, conversation_text)
                     continue
 
                 try:
                     topic = self.conversation[selection]
                     self.do_effect(topic)
-                    print(topic.response)
-                    self.conversation = funcs.get_stage(topic, available_conversations)
+                    message = topic.response
+                    self.conversation = functions.get_stage(topic, available_conversations)
+                    conversation_text += message
+                    functions.update_description(widget, conversation_text)
                     count = 1
                 except IndexError:
-                    print("That's not a valid choice.")
+                    message = "That's not a valid choice."
                     count = 1
+                    conversation_text += message
+                    functions.update_description(widget, conversation_text)
                     continue
 
             else:

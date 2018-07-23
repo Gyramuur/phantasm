@@ -1,8 +1,9 @@
 import functions
 import characters
 
+
 class Entity:
-    def __init__(self, name='Character', inventory=None, health=100, equip=None, c_room=None,
+    def __init__(self, name='Character', inventory=None, health=100, equip=None, c_room=None, target=None,
                  desc='You see nothing remarkable.', capacity=20, carrying=0, conversation=None, disposition=50):
         if equip is None:
             equip = []
@@ -18,12 +19,13 @@ class Entity:
         self.carrying = carrying
         self.conversation = conversation
         self.disposition = disposition
+        self.target = target
 
     def spawn(self, room):
         room.characters.append(self)
         self.c_room = room
 
-    def move(self, choice, available_rooms, game_text):
+    def move(self, choice, available_rooms, widget):
         direction = functions.get_direction(choice)
 
         if direction in self.c_room.exits:
@@ -37,17 +39,19 @@ class Entity:
 
             else:
                 if self.name == "Scintilla":
-                    print("The door is locked.")
+                    description = "The door is locked."
+                    functions.update_description(widget, description)
+                    return
 
         else:
             print("You can't go that way.")
 
         description = self.c_room.room_desc()
-        functions.update_description(description, choice, game_text)
+        functions.update_description(widget, description)
 
-    def take(self, choice, available_items, game_text):
+    def take(self, widget, available_items):
         available_characters = ['']
-        item = functions.get_target(choice, available_items, available_characters)
+        item = functions.get_target(widget.ids.text_input.text, available_items, available_characters)
 
         if item in self.c_room.items:
             self.c_room.items.remove(item)
@@ -60,35 +64,41 @@ class Entity:
                 self.carrying -= item.weight
 
         else:
-            take_message="You don't see that here.\n"
-            functions.update_description(take_message, choice, game_text)
+            take_message = "You don't see that here.\n\n" + self.c_room.room_desc() + "\n"
+            functions.update_description(widget, take_message)
             return
 
         if item in self.inventory:
-            take_message = f"You take {item.name}.\n"
+            take_message = f"You take {item.name}.\n\n" + self.c_room.room_desc() + "\n"
 
         else:
-            take_message = "That is too heavy!\n"
+            take_message = "That is too heavy!\n\n" + self.c_room.room_desc() + "\n"
 
-        functions.update_description(take_message, choice, game_text)
+        functions.update_description(widget, take_message)
 
-    def drop(self, choice, available_items, game_text):
+    def drop(self, widget, available_items):
         available_characters = ['']
         if len(self.inventory) > 0:
-            item = functions.get_target(choice, available_items, available_characters)
+            item = functions.get_target(widget.ids.text_input.text, available_items, available_characters)
 
             if item in self.inventory:
                 self.inventory.remove(item)
                 self.c_room.items.append(item)
                 self.carrying -= item.weight
-                drop_message = f"You drop {item.name}.\n"
+                drop_message = f"You drop {item.name}.\n\n{self.c_room.room_desc()}"
             else:
                 drop_message = f"You are not carrying that.\n"
 
         else:
-            drop_message = "You don't have anything to drop!\n"
+            drop_message = f"You don't have anything to drop!\n"
 
-        functions.update_description(drop_message, choice, game_text)
+        functions.update_description(widget, drop_message)
+
+    def say(self, widget):
+        original_message = widget.ids.text_input.text
+        message = f"{self.name}: {original_message[3:]}"
+        functions.update_description(widget, message)  # This will have to change eventually, if you ever implement
+        # multiplayer.
 
 
 class Player(Entity):
@@ -102,33 +112,32 @@ drop <item> - Drops specified item if in inventory.
 check - Displays name, health, and contents of inventory.
 quit - Quits the game.'''
 
-    def look(self, choice, available_items, available_characters, game_text):
+    def look(self, choice, available_items, available_characters, widget):
         if choice == 'look':
-            description = self.c_room.room_desc()
-            functions.update_description(description, choice, game_text)
+            functions.update_description(widget, self.c_room.room_desc())
 
         else:
             target = functions.get_target(choice, available_items, available_characters)
             if target in self.c_room.items or target in self.inventory:
-                target.item_desc()
+                functions.update_description(widget, target.item_desc())
             elif target in self.c_room.characters:
-                print(target.desc)
+                functions.update_description(widget, target.desc)
             else:
-                print("You don't see that here.")
+                functions.update_description(widget, "You don't see that here.")
 
-    def player_choice(self, available_rooms, available_items, available_characters, choice, game_text):
+    def player_choice(self, available_rooms, available_items, available_characters, choice, widget):
 
         if 'go' in choice:
-            self.move(choice, available_rooms, game_text)
+            self.move(choice, available_rooms, widget)
 
         elif 'look' in choice:
-            self.look(choice, available_items, available_characters, game_text)
+            self.look(choice, available_items, available_characters, widget)
 
         elif 'take' in choice:
-            self.take(choice, available_items, game_text)
+            self.take(widget, available_items)
 
         elif 'drop' in choice:
-            self.drop(choice, available_items, game_text)
+            self.drop(widget, available_items)
 
         elif 'check' in choice:
             if len(self.inventory) > 0:
@@ -145,34 +154,32 @@ quit - Quits the game.'''
                     f"{inventory}" + "\n" \
                     f"Encumbrance: {self.carrying}/{self.capacity}" + "\n"
 
-            functions.update_description(stats, choice, game_text)
-
-            '''
-            print("Name: " + self.name)
-            print(f"Health: {self.health}\n")
-            if len(self.inventory) > 0:
-                print("You are carrying:")
-                for item in self.inventory:
-                    print(item.name)
-            print(f"Encumbrance: {self.carrying}/{self.capacity}")
-            '''
+            functions.update_description(widget, stats)
 
         elif 'talk' in choice:
+            # You need to make it so that this calls the in_conversation variable somehow so that it can modify
+            # the behaviour of the readback function in game.py. Maybe make it so that entities can have an active
+            # target, that way the code will be able to look at the target's conversation and access the in_conversation
+            # variable. Try it out when you can.
             target = functions.get_target(choice, available_items, available_characters)
             # target.conversation.list_topics()
             if target in self.c_room.characters:
-                target.conversation.converse()
+                target.conversation.converse(widget)
+
             else:
-                print("You don't see them here.")
+                functions.update_description(widget, "You don't see them here.")
 
         elif 'help' in choice:
-            functions.update_description(self.actions, choice, game_text)
+            functions.update_description(widget, self.actions)
+
+        elif 'say' in choice:
+            self.say(widget)
 
         elif 'quit' in choice:
             exit(0)
 
         else:
-            print("You don't know how to do that.")
+            functions.update_description(widget, "You don't know how to do that.")
 
         print()
 
@@ -191,10 +198,12 @@ class Item:
         self.weight = weight
 
     def item_desc(self):
-        print(self.desc)
-        print(f"It is worth: {self.value} gold.")
-        print(f"It weighs {self.weight} pounds.")
-        print(f"It does {self.damage} damage.")
+        description = f"{self.desc}\n" \
+                      f"\nIt is worth: {self.value} gold." \
+                      f"\nIt weighs {self.weight} pounds." \
+                      f"\nIt does {self.damage} damage."
+
+        return description
 
 
 class Room:

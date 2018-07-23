@@ -1,12 +1,8 @@
-from tkinter import *
 
-
-def update_description(description, choice, game_text):
-    game_text.configure(state="normal")
-    new_description = (f"\n> {choice}" + "\n" + description)
-    game_text.insert(END, new_description)
-    game_text.see('end')
-    game_text.configure(state="disabled")
+def update_description(widget, description):
+    new_description = f"{widget.ids.game_label.game_text}\n> {widget.ids.text_input.text}\n" \
+                      f"{description}\n"
+    widget.ids.game_label.game_text = new_description
 
 
 def get_target(choice, available_items, available_characters):

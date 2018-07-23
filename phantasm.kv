@@ -1,0 +1,50 @@
+<MainWidget>:
+
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.size
+        id: my_box1
+
+        ScrollableLabel:
+            game_text: "Hi."
+            canvas.before:
+                Color:
+                    rgba: .886, .776, .615, 1
+                Rectangle:
+                    pos: root.pos
+                    size: root.size
+            text: self.game_text
+            size_hint: (1, 15)
+            font_name: "Legendaria.ttf"
+            bold: True
+            font_size: 26
+            text_size: self.size
+            bold: True
+            halign: 'left'
+            valign: 'top'
+            scroll_y: -1
+            padding: (10, 10)
+            color: [.494, .152, .074, 1]
+            id: game_label
+
+
+
+
+        TextInput:
+            multiline: False
+            background_color: (.886, .776, .615, 1)
+            foreground_color: (.494, .152, .074, 1)
+            font_name: "Legendaria.ttf"
+            bold: True
+            font_size: 26
+            size_hint: (1, 1)
+            # padding: (10, 10)
+            # on_text: print(self.contents)
+            cursor_color: (.494, .152, .074, 1)
+            cursor_width: 10
+            background_normal: ''
+            background_active: ''
+            halign: 'left'
+            valign: 'bottom'
+            id: text_input
+            on_text_validate: root.do_readback()
