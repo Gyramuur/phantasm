@@ -2,6 +2,7 @@ import characters
 import items
 import rooms
 import functions
+import conversations
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.properties import StringProperty
@@ -38,7 +39,11 @@ class MainWidget(Widget):
         self.ids.text_input.focus = True
 
     def readback(self):
-        characters.player.player_choice(rooms.available_rooms, items.available_items, characters.available_characters, self.ids.text_input.text, self)
+        if not characters.player.target.conversation.in_conversation:
+            characters.player.player_choice(rooms.available_rooms, items.available_items, characters.available_characters, self.ids.text_input.text, self)
+        else:
+            characters.player.target.conversation.converse(self)
+
         self.ids.text_input.text = ""
         self.ids.text_input.focus = True
 

@@ -164,7 +164,9 @@ quit - Quits the game.'''
             target = functions.get_target(choice, available_items, available_characters)
             # target.conversation.list_topics()
             if target in self.c_room.characters:
-                target.conversation.converse(widget)
+                self.target = target
+                target.conversation.in_conversation = True
+                target.conversation.conversation = target.conversation.initial_conversation
 
             else:
                 functions.update_description(widget, "You don't see them here.")

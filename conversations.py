@@ -28,11 +28,10 @@ class Conversation:
     def do_effect(self, topic):
         if 'has_met' in topic.effect:
             self.meet()
+        elif 'goodbye' in topic.effect:
+            self.goodbye()
 
     def converse(self, widget):
-
-        self.in_conversation = True
-        self.conversation = self.initial_conversation
         conversation_text = ''
 
         if not self.has_met:
@@ -41,43 +40,41 @@ class Conversation:
             conversation_text = conversation_text + self.return_greeting
 
         count = 1
-        while self.in_conversation:
+        if self.conversation is not None:
+            for item in self.conversation:
+                conversation_text = conversation_text + f"\n  {count}) {item.prompt}"
+                count += 1
+                # Probably stuff here.
 
-            if self.conversation is not None:
-                for item in self.conversation:
-                    conversation_text = conversation_text + f"\n  {count}) {item.prompt}"
-                    count += 1
-                    # Probably stuff here.
+            functions.update_description(widget, conversation_text)
+            selection = widget.ids.text_input.text
 
+            try:
+                selection = int(selection) - 1
+            except ValueError:
+
+                message = "Enter a number!"
+                count = 1
+                conversation_text += message
                 functions.update_description(widget, conversation_text)
+                return
 
-                try:
-                    selection = int(widget.ids.text_input.text) - 1
-                except ValueError:
+            try:
+                topic = self.conversation[selection]
+                self.do_effect(topic)
+                message = topic.response
+                self.conversation = functions.get_stage(topic, available_conversations)
+                functions.update_description(widget, conversation_text)
+                count = 1
+            except TypeError:
+                message = "That's not a valid choice."
+                count = 1
+                conversation_text += message
+                functions.update_description(widget, conversation_text)
+                return
 
-                    message = "Enter a number!"
-                    count = 1
-                    conversation_text += message
-                    functions.update_description(widget, conversation_text)
-                    continue
+        # Maybe have the "in conversation" checks in here
 
-                try:
-                    topic = self.conversation[selection]
-                    self.do_effect(topic)
-                    message = topic.response
-                    self.conversation = functions.get_stage(topic, available_conversations)
-                    conversation_text += message
-                    functions.update_description(widget, conversation_text)
-                    count = 1
-                except IndexError:
-                    message = "That's not a valid choice."
-                    count = 1
-                    conversation_text += message
-                    functions.update_description(widget, conversation_text)
-                    continue
-
-            else:
-                self.goodbye()
 
 
 wolf_greet = ConversationBranch(
