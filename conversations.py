@@ -2,12 +2,13 @@ import functions
 
 
 class ConversationBranch:
-    def __init__(self, name='', prompt='', response='', leads_to='', effect='continue'):
+    def __init__(self, name='', prompt='', response='', leads_to='', effect='continue', initiated=False):
         self.name = name
         self.prompt = prompt
         self.response = response
         self.leads_to = leads_to
         self.effect = effect
+        self.initiated = initiated
 
 
 class Conversation:
@@ -31,7 +32,7 @@ class Conversation:
         elif 'goodbye' in topic.effect:
             self.goodbye()
 
-    def converse(self, widget):
+    def converse(self, widget, player_choice):
         conversation_text = ''
 
         if not self.has_met:
@@ -47,16 +48,26 @@ class Conversation:
                 # Probably stuff here.
 
             functions.update_description(widget, conversation_text)
-            selection = widget.ids.text_input.text
+            '''
+            # Deep experimentation.
+            if self.initiated:
+
+                selection = widget.ids.text_input.text
+
+            else:
+
+                return'''
+
+            selection = player_choice
 
             try:
+                print(f"Selection is {selection}")
                 selection = int(selection) - 1
             except ValueError:
 
                 message = "Enter a number!"
                 count = 1
-                conversation_text += message
-                functions.update_description(widget, conversation_text)
+                functions.update_description(widget, message)
                 return
 
             try:
@@ -69,8 +80,7 @@ class Conversation:
             except TypeError:
                 message = "That's not a valid choice."
                 count = 1
-                conversation_text += message
-                functions.update_description(widget, conversation_text)
+                functions.update_description(widget, message)
                 return
 
         # Maybe have the "in conversation" checks in here

@@ -167,6 +167,7 @@ quit - Quits the game.'''
                 self.target = target
                 target.conversation.in_conversation = True
                 target.conversation.conversation = target.conversation.initial_conversation
+                target.conversation.converse(widget, "0")
 
             else:
                 functions.update_description(widget, "You don't see them here.")
