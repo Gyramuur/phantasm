@@ -1,10 +1,12 @@
 import functions
 import characters
+from random import randint
 
 
 class Entity:
     def __init__(self, name='Character', inventory=None, health=100, equip=None, c_room=None, target=None,
-                 desc='You see nothing remarkable.', capacity=20, carrying=0, conversation=None, disposition=50):
+                 desc='You see nothing remarkable.', capacity=20, carrying=0, conversation=None, disposition=50,
+                 container=False):
         if equip is None:
             equip = []
         if inventory is None:
@@ -20,6 +22,7 @@ class Entity:
         self.conversation = conversation
         self.disposition = disposition
         self.target = target
+        self.container = container
 
     def spawn(self, room):
         room.characters.append(self)
@@ -156,6 +159,26 @@ quit - Quits the game.'''
 
             functions.update_description(widget, stats)
 
+        elif 'open' in choice:
+            target = functions.get_target(choice, available_items, available_characters)
+            if target in self.c_room.characters or target in self.c_room.items:
+                if target.container:
+                    if len(target.inventory) > 0:
+                        c_num = 1
+                        inventory_contents = []
+                        inventory = f"You look through {target.name} and find:\n"
+                        for item in target.inventory:
+                            inventory = inventory + f"({c_num}). {item.name.title()}" + "\n"
+                            c_num += 1
+                    else:
+                        inventory = f"You look through {target.name} but don't find anything."
+                else:
+                    inventory = "You can't look through that."
+            else:
+                inventory = "You don't see that here."
+
+            functions.update_description(widget, inventory)
+
         elif 'talk' in choice:
             # You need to make it so that this calls the in_conversation variable somehow so that it can modify
             # the behaviour of the readback function in game.py. Maybe make it so that entities can have an active
@@ -189,7 +212,7 @@ quit - Quits the game.'''
 
 class Item:
     def __init__(self, name='item', desc='', value=1, damage=1, unlocks='', edible=False, container=False,
-                 capacity=0, weight=1):
+                 capacity=0, weight=1, inventory=None, i_rarity="common"):
         self.name = name
         self.desc = desc
         self.value = value
@@ -197,8 +220,13 @@ class Item:
         self.unlocks = unlocks
         self.edible = edible
         self.container = container
+        self.inventory = inventory
+        self.i_rarity = i_rarity
         self.capacity = capacity
         self.weight = weight
+
+        if self.inventory is None:
+            self.inventory = []
 
     def item_desc(self):
         description = f"{self.desc}\n" \
@@ -207,6 +235,19 @@ class Item:
                       f"\nIt does {self.damage} damage."
 
         return description
+
+    def spawn(self, room, items):
+        room.items.append(self)
+        if self.container:
+            item_amount = randint(1, 10)
+            c_num = 0
+            if self.i_rarity == "common":
+                while c_num < item_amount:
+                    item = items.common_items[randint(0, len(items.common_items) - 1)]
+                    self.inventory.append(item)
+                    c_num += 1
+
+
 
 
 class Room:

@@ -12,7 +12,9 @@ from kivy.uix.scrollview import ScrollView
 
 
 characters.player.spawn(rooms.start_room)
-characters.test_wolf.spawn(rooms.start_room)
+# characters.test_wolf.spawn(rooms.start_room)
+items.stick.spawn(rooms.start_room, items)
+items.chest.spawn(rooms.hallway, items)
 
 Builder.load_string('''
 <ScrollableLabel>:

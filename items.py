@@ -19,10 +19,46 @@ heavy_test = classes.Item(
     weight=10000
 )
 
+apple = classes.Item(
+    name='apple',
+    desc='A red, delicious looking apple.',
+    value=2,
+    weight=1
+)
+
+stick = classes.Item(
+    name='stick',
+    desc='A prosaic-looking stick.',
+    value=0,
+    weight=1
+)
+
+bread = classes.Item(
+    name='bread',
+    desc='That\'s some white bread.',
+    value=2,
+    weight=1
+)
+
+chest = classes.Item(
+    name='oak chest',
+    desc='A chest made of oak-wood.',
+    value=20,
+    weight=500,
+    container=True
+)
+
+
 available_items = {
     'orb': test_item,
     'cube': test_item2,
-    'statue': heavy_test
+    'statue': heavy_test,
+    'stick': stick,
+    'apple': apple,
+    'chest': chest,
+    'bread': bread
 }
+
+common_items = [stick, apple, bread]
 
 
