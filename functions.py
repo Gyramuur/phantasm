@@ -1,7 +1,9 @@
 
+
 def update_description(widget, description):
-    new_description = f"{widget.ids.game_label.game_text}\n> {widget.ids.text_input.text}\n" \
-                      f"{description}\n"
+    new_description = f"{widget.ids.game_label.game_text}\n > {widget.ids.text_input.text}\n" \
+                        f"{description}\n"
+
     widget.ids.game_label.game_text = new_description
 
 

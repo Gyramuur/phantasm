@@ -37,16 +37,30 @@ class ScrollableLabel(ScrollView):
 class MainWidget(Widget):
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
+        print("Main Widget.")
         self.ids.game_label.game_text = characters.player.c_room.room_desc()
         self.ids.text_input.focus = True
 
     def readback(self):
-        if not characters.player.target.conversation.in_conversation:
-            characters.player.player_choice(rooms.available_rooms, items.available_items, characters.available_characters, self.ids.text_input.text, self)
+
+        if characters.player.target is not None:
+            print("Has target.")
+            if characters.player.target.is_living:
+                if characters.player.target.conversation.in_conversation:
+                    print("Top level converse.")
+                    characters.player.target.conversation.converse(self, self.ids.text_input.text)
+            else:
+                print("Lost target.")
+                characters.player.player_choice(rooms.available_rooms, items.available_items,
+                                                characters.available_characters, self.ids.text_input.text, self)
         else:
-            characters.player.target.conversation.converse(self)
+            print("Normal choice.")
+            characters.player.player_choice(rooms.available_rooms, items.available_items,
+                                            characters.available_characters, self.ids.text_input.text, self)
+
 
         self.ids.text_input.text = ""
+        self.ids.game_text = ""
         self.ids.text_input.focus = True
 
     def do_readback(self):

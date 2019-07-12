@@ -1,12 +1,14 @@
 import classes
 import items
+import characters
 
 start_room = classes.Room(
     desc="You are standing in a barren, stone-walled room. There is a door leading north.",
     exits={
         "north": "hallway",
     },
-    items=[items.test_item, items.test_item2]
+    items=[items.test_item, items.test_item2],
+    characters=[characters.test_wolf]
 )
 
 hallway = classes.Room(

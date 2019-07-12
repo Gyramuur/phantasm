@@ -3,10 +3,26 @@ import characters
 from random import randint
 
 
+class Stack:
+    # Probably never happening because I am a silly and derpy yeen.
+    def __init__(self, max_items=64):
+        self.max_items = max_items
+        self.items = []
+
+    def push(self, item):
+        self.append(item, self.items)
+
+    def pop(self):
+        return self.items.pop()
+
+    def amount(self):
+        return len(self.items)
+
+
 class Entity:
     def __init__(self, name='Character', inventory=None, health=100, equip=None, c_room=None, target=None,
                  desc='You see nothing remarkable.', capacity=20, carrying=0, conversation=None, disposition=50,
-                 container=False):
+                 container=False, is_living=True):
         if equip is None:
             equip = []
         if inventory is None:
@@ -23,6 +39,7 @@ class Entity:
         self.disposition = disposition
         self.target = target
         self.container = container
+        self.is_living = is_living
 
     def spawn(self, room):
         room.characters.append(self)
@@ -39,6 +56,7 @@ class Entity:
                     self.c_room.characters.remove(self)
                 self.c_room = available_rooms[direction]
                 self.c_room.characters.append(self)
+                self.target = None
 
             else:
                 if self.name == "Scintilla":
@@ -47,7 +65,8 @@ class Entity:
                     return
 
         else:
-            print("You can't go that way.")
+            functions.update_description(widget, "You can't go that way.")
+            return
 
         description = self.c_room.room_desc()
         functions.update_description(widget, description)
@@ -58,6 +77,16 @@ class Entity:
 
         if item in self.c_room.items:
             self.c_room.items.remove(item)
+            self.inventory.append(item)
+            self.carrying += item.weight
+
+            if self.carrying >= self.capacity:
+                self.inventory.remove(item)
+                self.c_room.items.append(item)
+                self.carrying -= item.weight
+
+        elif item in self.target.inventory:
+            self.target.inventory.remove(item)
             self.inventory.append(item)
             self.carrying += item.weight
 
@@ -125,6 +154,8 @@ quit - Quits the game.'''
                 functions.update_description(widget, target.item_desc())
             elif target in self.c_room.characters:
                 functions.update_description(widget, target.desc)
+            elif target in self.target.inventory:
+                functions.update_description(widget, target.item_desc())
             else:
                 functions.update_description(widget, "You don't see that here.")
 
@@ -157,21 +188,24 @@ quit - Quits the game.'''
                     f"{inventory}" + "\n" \
                     f"Encumbrance: {self.carrying}/{self.capacity}" + "\n"
 
+            if self.target is not None:
+                stats += f"You are looking at {self.target.name}."
+
             functions.update_description(widget, stats)
 
         elif 'open' in choice:
-            target = functions.get_target(choice, available_items, available_characters)
-            if target in self.c_room.characters or target in self.c_room.items:
-                if target.container:
-                    if len(target.inventory) > 0:
+            self.target = functions.get_target(choice, available_items, available_characters)
+            if self.target in self.c_room.characters or self.target in self.c_room.items:
+                if self.target.container:
+                    if len(self.target.inventory) > 0:
                         c_num = 1
                         inventory_contents = []
-                        inventory = f"You look through {target.name} and find:\n"
-                        for item in target.inventory:
+                        inventory = f"You look through {self.target.name} and find:\n"
+                        for item in self.target.inventory:
                             inventory = inventory + f"({c_num}). {item.name.title()}" + "\n"
                             c_num += 1
                     else:
-                        inventory = f"You look through {target.name} but don't find anything."
+                        inventory = f"You look through {self.target.name} but don't find anything."
                 else:
                     inventory = "You can't look through that."
             else:
@@ -188,9 +222,7 @@ quit - Quits the game.'''
             # target.conversation.list_topics()
             if target in self.c_room.characters:
                 self.target = target
-                target.conversation.in_conversation = True
-                target.conversation.conversation = target.conversation.initial_conversation
-                target.conversation.converse(widget, "0")
+                self.target.conversation.converse(widget, choice)
 
             else:
                 functions.update_description(widget, "You don't see them here.")
@@ -212,7 +244,7 @@ quit - Quits the game.'''
 
 class Item:
     def __init__(self, name='item', desc='', value=1, damage=1, unlocks='', edible=False, container=False,
-                 capacity=0, weight=1, inventory=None, i_rarity="common"):
+                 capacity=0, weight=1, inventory=None, i_rarity="common", is_living=False):
         self.name = name
         self.desc = desc
         self.value = value
@@ -224,6 +256,7 @@ class Item:
         self.i_rarity = i_rarity
         self.capacity = capacity
         self.weight = weight
+        self.is_living = is_living
 
         if self.inventory is None:
             self.inventory = []
@@ -246,8 +279,6 @@ class Item:
                     item = items.common_items[randint(0, len(items.common_items) - 1)]
                     self.inventory.append(item)
                     c_num += 1
-
-
 
 
 class Room:
